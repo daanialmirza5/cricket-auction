@@ -1,3 +1,4 @@
+
 import {
   useState,
   useEffect,
@@ -55,22 +56,39 @@ const initialTeams = [
 
 const players = [
   "Dilli Rao",
+  "",
   "Danish",
+  "",
   "Faiz",
+  "",
   "Muzammil",
+  "",
   "Kaif",
+  "",
   "Saquib",
+  "",
   "Asif Saikh",
+  "",
   "Mubarak",
+  "",
   "Salim Bhai",
+  "",
   "Reyaz",
+  "",
   "Uzair",
+  "",
   "Dinesh",
+  "",
   "Ahad",
+  "",
   "Mujahid",
-  "Adnaan",
+  "",
+  "Salim Khan",
+  "",
   "Zaid",
+  "",
   "Ayaz",
+  "",
   "Afsar Ali",
 ];
 
@@ -151,7 +169,7 @@ export default function App() {
     useState([]);
 
   const [timer, setTimer] =
-    useState(100);
+    useState(150);
 
   const [isPaused, setIsPaused] =
     useState(false);
@@ -190,6 +208,8 @@ export default function App() {
 
     setUser(foundUser);
   };
+
+  // LOGOUT
 
   const handleLogout = () => {
 
@@ -242,7 +262,7 @@ export default function App() {
           );
 
           setTimer(
-            data.timer || 100
+            data.timer || 150
           );
 
           setIsPaused(
@@ -327,7 +347,7 @@ export default function App() {
 
   ]);
 
-  // TIMER
+  // TIMER EFFECT
 
   useEffect(() => {
 
@@ -346,31 +366,40 @@ export default function App() {
       return;
     }
 
+    // WAIT TIMER
+
     if (isPaused) {
-
-      if (pauseTimer <= 0) {
-
-        setIsPaused(false);
-
-        setPauseTimer(15);
-
-        setCurrentPlayerIndex(
-          (prev) => prev + 1
-        );
-
-        setCurrentBid(3000);
-
-        setHighestBidder("");
-
-        return;
-      }
 
       const pauseInterval =
         setInterval(() => {
 
-          setPauseTimer(
-            (prev) => prev - 1
-          );
+          setPauseTimer((prev) => {
+
+            if (prev <= 1) {
+
+              setIsPaused(false);
+
+              setCurrentPlayerIndex(
+                (old) => {
+                  if (
+                    old >= players.length - 1
+                  ) {
+                    return old;
+                  }
+
+                  return old + 1;
+                }
+              );
+
+              setCurrentBid(3000);
+
+              setHighestBidder("");
+
+              return 15;
+            }
+
+            return prev - 1;
+          });
 
         }, 1000);
 
@@ -380,19 +409,22 @@ export default function App() {
         );
     }
 
-    if (timer <= 0) {
-
-      handleUnsold();
-
-      return;
-    }
+    // MAIN TIMER
 
     const interval =
       setInterval(() => {
 
-        setTimer(
-          (prev) => prev - 1
-        );
+        setTimer((prev) => {
+
+          if (prev <= 1) {
+
+            handleUnsold();
+
+            return 150;
+          }
+
+          return prev - 1;
+        });
 
       }, 1000);
 
@@ -423,7 +455,9 @@ export default function App() {
 
     setIsPaused(true);
 
-    setTimer(100);
+    setPauseTimer(15);
+
+    setTimer(150);
   };
 
   // BID
@@ -685,6 +719,8 @@ export default function App() {
 
       </div>
 
+      {/* CURRENT PLAYER */}
+
       <div className="bg-[#0f172a] border border-[#1e293b] rounded-3xl p-8 mb-8 text-center">
 
         <p className="text-gray-400 mb-3">
@@ -750,6 +786,7 @@ export default function App() {
         </div>
 
       </div>
+            {/* CONTROL BUTTONS */}
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
 
@@ -820,11 +857,27 @@ export default function App() {
         <button
           onClick={() => {
 
-            setTimer(100);
+            setCurrentPlayerIndex(0);
+
+            setTimer(150);
+
+            setPauseTimer(15);
 
             setCurrentBid(3000);
 
             setHighestBidder("");
+
+            setIsPaused(false);
+            
+            setAuctionStarted(false);
+
+            setAuctionPaused(false);
+
+            setSoldPlayers([]);
+
+            setUnsoldPlayers([]);
+
+            setTeams(initialTeams);
 
           }}
 
@@ -838,6 +891,8 @@ export default function App() {
         </button>
 
       </div>
+
+      {/* TEAMS */}
 
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
 
@@ -894,6 +949,8 @@ export default function App() {
 
               </div>
 
+              {/* BID BUTTON */}
+
               <button
                 onClick={() =>
                   handleBid(team)
@@ -931,6 +988,8 @@ export default function App() {
 
               </button>
 
+              {/* PLAYERS */}
+
               <div className="mt-5">
 
                 <h3 className="font-bold mb-3">
@@ -939,31 +998,40 @@ export default function App() {
 
                 <div className="space-y-2 max-h-40 overflow-y-auto">
 
-                  {(team.players || []).map(
-                    (
-                      player,
-                      idx
-                    ) => (
+                  {(team.players || []).length === 0 ? (
 
-                      <div
-                        key={idx}
-                        className="bg-[#111c35] p-3 rounded-2xl flex justify-between"
-                      >
+                    <p className="text-gray-500 text-sm">
+                      No players yet
+                    </p>
 
-                        <span>
-                          {
-                            player.name
-                          }
-                        </span>
+                  ) : (
 
-                        <span className="text-green-400">
-                          ₹
-                          {
-                            player.price
-                          }
-                        </span>
+                    (team.players || []).map(
+                      (
+                        player,
+                        idx
+                      ) => (
 
-                      </div>
+                        <div
+                          key={idx}
+                          className="bg-[#111c35] p-3 rounded-2xl flex justify-between"
+                        >
+
+                          <span>
+                            {
+                              player.name
+                            }
+                          </span>
+
+                          <span className="text-green-400">
+                            ₹
+                            {
+                              player.price
+                            }
+                          </span>
+
+                        </div>
+                      )
                     )
                   )}
 
@@ -975,6 +1043,51 @@ export default function App() {
 
           </div>
         ))}
+
+      </div>
+
+      {/* SOLD PLAYERS */}
+
+      <div className="mt-10">
+
+        <h2 className="text-3xl font-bold mb-5">
+          Sold Players
+        </h2>
+
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+
+          {(soldPlayers || []).map(
+            (
+              item,
+              idx
+            ) => (
+
+              <div
+                key={idx}
+                className="bg-[#0f172a] border border-[#1e293b] rounded-2xl p-5"
+              >
+
+                <div className="flex justify-between mb-3">
+
+                  <h3 className="text-xl font-bold">
+                    {item.player}
+                  </h3>
+
+                  <span className="text-green-400 font-bold">
+                    ₹{item.amount}
+                  </span>
+
+                </div>
+
+                <p className="text-gray-400">
+                  Bought by {item.team}
+                </p>
+
+              </div>
+            )
+          )}
+
+        </div>
 
       </div>
 
