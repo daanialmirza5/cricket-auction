@@ -74,7 +74,63 @@ const players = [
   "Afsar Ali",
 ];
 
+const users = [
+
+  {
+    username: "organizer1",
+    password: "admin123",
+    role: "organizer",
+  },
+
+  {
+    username: "organizer2",
+    password: "admin123",
+    role: "organizer",
+  },
+
+  {
+    username: "daanial",
+    password: "1234",
+    role: "owner",
+    team: "Gladiator XI",
+  },
+
+  {
+    username: "asif",
+    password: "1234",
+    role: "owner",
+    team: "Thunder Strikers",
+  },
+
+  {
+    username: "jameel",
+    password: "1234",
+    role: "owner",
+    team: "Turf Titans",
+  },
+
+  {
+    username: "viewer",
+    password: "1234",
+    role: "viewer",
+  },
+
+];
+
 export default function App() {
+
+  // LOGIN STATES
+
+  const [user, setUser] =
+    useState(null);
+
+  const [username, setUsername] =
+    useState("");
+
+  const [password, setPassword] =
+    useState("");
+
+  // AUCTION STATES
 
   const [teams, setTeams] =
     useState(initialTeams);
@@ -111,6 +167,38 @@ export default function App() {
 
   const currentPlayer =
     players[currentPlayerIndex];
+
+  // LOGIN
+
+  const handleLogin = () => {
+
+    const foundUser =
+      users.find(
+        (u) =>
+          u.username === username &&
+          u.password === password
+      );
+
+    if (!foundUser) {
+
+      alert(
+        "Invalid credentials"
+      );
+
+      return;
+    }
+
+    setUser(foundUser);
+  };
+
+  const handleLogout = () => {
+
+    setUser(null);
+
+    setUsername("");
+
+    setPassword("");
+  };
 
   // FIREBASE LOAD
 
@@ -239,7 +327,7 @@ export default function App() {
 
   ]);
 
-  // TIMER EFFECT
+  // TIMER
 
   useEffect(() => {
 
@@ -257,8 +345,6 @@ export default function App() {
     if (auctionPaused) {
       return;
     }
-
-    // WAIT TIMER
 
     if (isPaused) {
 
@@ -293,8 +379,6 @@ export default function App() {
           pauseInterval
         );
     }
-
-    // MAIN TIMER
 
     if (timer <= 0) {
 
@@ -342,7 +426,7 @@ export default function App() {
     setTimer(100);
   };
 
-  // BID FUNCTION
+  // BID
 
   const handleBid = (team) => {
 
@@ -396,7 +480,7 @@ export default function App() {
     setHighestBidder(team.name);
   };
 
-  // SOLD FUNCTION
+  // SOLD
 
   const handleSold = () => {
 
@@ -469,8 +553,6 @@ export default function App() {
           team.budget >= 3000
       );
 
-    // AUTO ASSIGN
-
     if (availableTeams.length === 1) {
 
       const lastTeam =
@@ -512,20 +594,6 @@ export default function App() {
 
       setTeams(updatedTeams);
 
-      setSoldPlayers([
-        ...(soldPlayers || []),
-
-        {
-          player: currentPlayer,
-          amount: 3000,
-          team: lastTeam.name,
-        },
-      ]);
-
-      alert(
-        `${currentPlayer} auto assigned to ${lastTeam.name}`
-      );
-
       moveToNextPlayer();
 
       return;
@@ -539,454 +607,363 @@ export default function App() {
     moveToNextPlayer();
   };
 
+  // LOGIN SCREEN
+
+  if (!user) {
+
+    return (
+
+      <div className="min-h-screen bg-[#020817] flex items-center justify-center p-6">
+
+        <div className="bg-[#0f172a] border border-[#1e293b] rounded-3xl p-10 w-full max-w-md">
+
+          <h1 className="text-4xl font-black text-white mb-2 text-center">
+            Cricket Auction
+          </h1>
+
+          <p className="text-gray-400 text-center mb-8">
+            Login to continue
+          </p>
+
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) =>
+              setUsername(e.target.value)
+            }
+            className="w-full bg-[#111c35] text-white p-4 rounded-2xl mb-4 outline-none"
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) =>
+              setPassword(e.target.value)
+            }
+            className="w-full bg-[#111c35] text-white p-4 rounded-2xl mb-6 outline-none"
+          />
+
+          <button
+            onClick={handleLogin}
+            className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-4 rounded-2xl transition"
+          >
+            LOGIN
+          </button>
+
+        </div>
+
+      </div>
+    );
+  }
+
   return (
 
     <div className="min-h-screen bg-[#020817] text-white p-6">
 
-      <div className="max-w-7xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
 
-        {/* HEADER */}
+        <div>
 
-        <div className="flex items-center justify-between mb-10">
+          <h1 className="text-5xl font-black">
+            Cricket Auction
+          </h1>
 
-          <div>
-
-            <h1 className="text-5xl font-black">
-              Cricket Auction
-            </h1>
-
-            <p className="text-gray-400 mt-2">
-              Live Tournament Dashboard
-            </p>
-
-          </div>
+          <p className="text-gray-400 mt-2">
+            Logged in as {user.username}
+          </p>
 
         </div>
 
-        {/* STATS */}
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 hover:bg-red-400 text-black font-bold px-6 py-3 rounded-2xl"
+        >
+          Logout
+        </button>
 
-        <div className="grid md:grid-cols-4 gap-5 mb-8">
+      </div>
 
-          <div className="bg-[#0f172a] border border-[#1e293b] rounded-3xl p-6">
+      <div className="bg-[#0f172a] border border-[#1e293b] rounded-3xl p-8 mb-8 text-center">
 
-            <p className="text-gray-400 text-sm">
-              Teams
-            </p>
+        <p className="text-gray-400 mb-3">
+          Current Player
+        </p>
 
-            <h2 className="text-4xl font-black text-cyan-400 mt-2">
-              3
-            </h2>
+        <h2 className="text-5xl font-black mb-6">
+          {currentPlayer ||
+            "Auction Finished"}
+        </h2>
 
-          </div>
-
-          <div className="bg-[#0f172a] border border-[#1e293b] rounded-3xl p-6">
-
-            <p className="text-gray-400 text-sm">
-              Current Bid
-            </p>
-
-            <h2 className="text-4xl font-black text-green-400 mt-2">
-              ₹{currentBid}
-            </h2>
-
-          </div>
-
-          <div className="bg-[#0f172a] border border-[#1e293b] rounded-3xl p-6">
-
-            <p className="text-gray-400 text-sm">
-              Highest Bidder
-            </p>
-
-            <h2 className="text-2xl font-bold mt-3">
-              {highestBidder ||
-                "Waiting..."}
-            </h2>
-
-          </div>
-
-          <div className="bg-[#0f172a] border border-[#1e293b] rounded-3xl p-6">
-
-            <p className="text-gray-400 text-sm">
-              Players Remaining
-            </p>
-
-            <h2 className="text-4xl font-black text-orange-400 mt-2">
-              {
-                players.length -
-                currentPlayerIndex
-              }
-            </h2>
-
-          </div>
-
-        </div>
-
-        {/* MAIN */}
-
-        <div className="grid lg:grid-cols-3 gap-6">
-
-          {/* TEAMS */}
-
-          <div className="lg:col-span-2">
-
-            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
-
-              {teams.map((team, index) => (
-
-                <div
-                  key={index}
-                  className="bg-[#0f172a] border border-[#1e293b] rounded-3xl overflow-hidden"
-                >
-
-                  <img
-                    src={team.logo}
-                    alt=""
-                    className="w-full h-52 object-cover"
-                  />
-
-                  <div className="p-5">
-
-                    <h2 className="text-2xl font-bold mb-5">
-                      {team.name}
-                    </h2>
-
-                    <div className="space-y-3 mb-5">
-
-                      <div className="bg-[#111c35] p-3 rounded-2xl flex justify-between">
-                        <span className="text-gray-400">
-                          Owner
-                        </span>
-
-                        <span>
-                          {team.owner}
-                        </span>
-                      </div>
-
-                      <div className="bg-[#111c35] p-3 rounded-2xl flex justify-between">
-                        <span className="text-gray-400">
-                          Balance
-                        </span>
-
-                        <span className="text-green-400 font-bold">
-                          ₹{team.budget}
-                        </span>
-                      </div>
-
-                      <div className="bg-[#111c35] p-3 rounded-2xl flex justify-between">
-                        <span className="text-gray-400">
-                          Slots
-                        </span>
-
-                        <span>
-                          {team.slots}
-                        </span>
-                      </div>
-
-                    </div>
-
-                    <button
-                      onClick={() =>
-                        handleBid(team)
-                      }
-
-                      disabled={
-                        team.slots <= 0 ||
-                        isPaused ||
-                        !auctionStarted ||
-                        auctionPaused
-                      }
-
-                      className={`w-full py-4 rounded-2xl font-bold transition ${
-                        team.slots <= 0
-                          ? "bg-gray-700"
-                          : "bg-cyan-500 hover:bg-cyan-400 text-black"
-                      }`}
-                    >
-
-                      {team.slots <= 0
-                        ? "SQUAD FULL"
-                        : "BID NOW"}
-
-                    </button>
-
-                    {/* PLAYERS */}
-
-                    <div className="mt-5">
-
-                      <h3 className="font-bold mb-3">
-                        Purchased Players
-                      </h3>
-
-                      <div className="space-y-2 max-h-40 overflow-y-auto">
-
-                        {(team.players || []).length === 0 ? (
-
-                          <p className="text-gray-500 text-sm">
-                            No players
-                          </p>
-
-                        ) : (
-
-                          (team.players || []).map(
-                            (
-                              player,
-                              idx
-                            ) => (
-
-                              <div
-                                key={idx}
-                                className="bg-[#111c35] p-3 rounded-2xl flex justify-between"
-                              >
-
-                                <span>
-                                  {
-                                    player.name
-                                  }
-                                </span>
-
-                                <span className="text-green-400">
-                                  ₹
-                                  {
-                                    player.price
-                                  }
-                                </span>
-
-                              </div>
-                            )
-                          )
-                        )}
-
-                      </div>
-
-                    </div>
-
-                  </div>
-
-                </div>
-              ))}
-
-            </div>
-
-          </div>
-
-          {/* LIVE AUCTION */}
+        {isPaused ? (
 
           <div>
 
-            <div className="bg-[#0f172a] border border-[#1e293b] rounded-3xl p-6 sticky top-5">
+            <p className="text-yellow-400 mb-2">
+              Next Player In
+            </p>
 
-              <h2 className="text-3xl font-bold mb-6">
-                Live Auction
+            <h2 className="text-5xl font-black text-yellow-400">
+              {pauseTimer}s
+            </h2>
+
+          </div>
+
+        ) : (
+
+          <div>
+
+            <p className="text-gray-400 mb-2">
+              Auction Timer
+            </p>
+
+            <h2 className="text-5xl font-black text-red-400">
+              {timer}s
+            </h2>
+
+          </div>
+
+        )}
+
+        <div className="mt-6">
+
+          <p className="text-gray-400 mb-2">
+            Current Bid
+          </p>
+
+          <h2 className="text-6xl font-black text-green-400">
+            ₹{currentBid}
+          </h2>
+
+        </div>
+
+        <div className="mt-4 text-xl">
+
+          Highest Bidder:
+
+          <span className="text-cyan-400 font-bold ml-2">
+            {highestBidder ||
+              "No bids"}
+          </span>
+
+        </div>
+
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
+
+        <button
+          onClick={handleSold}
+
+          disabled={
+            user.role !== "organizer"
+          }
+
+          className="bg-green-500 hover:bg-green-400 text-black font-bold py-4 rounded-2xl"
+        >
+          SOLD
+        </button>
+
+        <button
+          onClick={handleUnsold}
+
+          disabled={
+            user.role !== "organizer"
+          }
+
+          className="bg-red-500 hover:bg-red-400 text-black font-bold py-4 rounded-2xl"
+        >
+          UNSOLD
+        </button>
+
+        {!auctionStarted ? (
+
+          <button
+            onClick={() =>
+              setAuctionStarted(true)
+            }
+
+            disabled={
+              user.role !== "organizer"
+            }
+
+            className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-4 rounded-2xl"
+          >
+            START
+          </button>
+
+        ) : (
+
+          <button
+            onClick={() =>
+              setAuctionPaused(
+                !auctionPaused
+              )
+            }
+
+            disabled={
+              user.role !== "organizer"
+            }
+
+            className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-4 rounded-2xl"
+          >
+
+            {auctionPaused
+              ? "RESUME"
+              : "PAUSE"}
+
+          </button>
+
+        )}
+
+        <button
+          onClick={() => {
+
+            setTimer(100);
+
+            setCurrentBid(3000);
+
+            setHighestBidder("");
+
+          }}
+
+          disabled={
+            user.role !== "organizer"
+          }
+
+          className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 rounded-2xl"
+        >
+          RESET
+        </button>
+
+      </div>
+
+      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+        {teams.map((team, index) => (
+
+          <div
+            key={index}
+            className="bg-[#0f172a] border border-[#1e293b] rounded-3xl overflow-hidden"
+          >
+
+            <img
+              src={team.logo}
+              alt=""
+              className="w-full h-52 object-cover"
+            />
+
+            <div className="p-5">
+
+              <h2 className="text-2xl font-bold mb-5">
+                {team.name}
               </h2>
 
-              <div className="bg-[#111c35] rounded-3xl p-8 text-center mb-5">
+              <div className="space-y-3 mb-5">
 
-                <p className="text-gray-400 mb-3">
-                  Current Player
-                </p>
-
-                <h2 className="text-5xl font-black mb-5">
-                  {currentPlayer ||
-                    "Finished"}
-                </h2>
-
-                <div className="mb-6">
-
-                  {isPaused ? (
-
-                    <div>
-
-                      <p className="text-yellow-400 mb-2">
-                        Next Player In
-                      </p>
-
-                      <h2 className="text-5xl font-black text-yellow-400">
-                        {pauseTimer}s
-                      </h2>
-
-                    </div>
-
-                  ) : (
-
-                    <div>
-
-                      <p className="text-gray-400 mb-2">
-                        Auction Timer
-                      </p>
-
-                      <h2 className="text-5xl font-black text-red-400">
-                        {timer}s
-                      </h2>
-
-                    </div>
-
-                  )}
-
-                </div>
-
-                <p className="text-gray-400 mb-2">
-                  Current Bid
-                </p>
-
-                <div className="text-6xl font-black text-green-400 mb-5">
-                  ₹{currentBid}
-                </div>
-
-                <div className="text-lg">
-
-                  Highest Bidder:
-
-                  <span className="text-cyan-400 ml-2 font-bold">
-                    {highestBidder ||
-                      "No bids yet"}
+                <div className="bg-[#111c35] p-3 rounded-2xl flex justify-between">
+                  <span className="text-gray-400">
+                    Owner
                   </span>
 
+                  <span>
+                    {team.owner}
+                  </span>
+                </div>
+
+                <div className="bg-[#111c35] p-3 rounded-2xl flex justify-between">
+                  <span className="text-gray-400">
+                    Balance
+                  </span>
+
+                  <span className="text-green-400 font-bold">
+                    ₹{team.budget}
+                  </span>
+                </div>
+
+                <div className="bg-[#111c35] p-3 rounded-2xl flex justify-between">
+                  <span className="text-gray-400">
+                    Slots Left
+                  </span>
+
+                  <span>
+                    {team.slots}
+                  </span>
                 </div>
 
               </div>
 
-              {/* SOLD UNSOLD */}
+              <button
+                onClick={() =>
+                  handleBid(team)
+                }
 
-              <div className="grid grid-cols-2 gap-4 mb-4">
+                disabled={
 
-                <button
-                  onClick={handleSold}
+                  team.slots <= 0 ||
 
-                  disabled={
-                    isPaused ||
-                    !auctionStarted ||
-                    auctionPaused
-                  }
+                  isPaused ||
 
-                  className="bg-green-500 hover:bg-green-400 text-black font-bold py-4 rounded-2xl"
-                >
-                  SOLD
-                </button>
+                  !auctionStarted ||
 
-                <button
-                  onClick={handleUnsold}
+                  auctionPaused ||
 
-                  disabled={
-                    isPaused ||
-                    !auctionStarted ||
-                    auctionPaused
-                  }
+                  (
+                    user.role === "owner" &&
+                    user.team !== team.name
+                  ) ||
 
-                  className="bg-red-500 hover:bg-red-400 text-black font-bold py-4 rounded-2xl"
-                >
-                  UNSOLD
-                </button>
+                  user.role === "viewer"
 
-              </div>
+                }
 
-              {/* CONTROLS */}
+                className={`w-full py-4 rounded-2xl font-bold transition ${
+                  team.slots <= 0
+                    ? "bg-gray-700"
+                    : "bg-cyan-500 hover:bg-cyan-400 text-black"
+                }`}
+              >
 
-              <div className="grid grid-cols-2 gap-4">
+                {team.slots <= 0
+                  ? "SQUAD FULL"
+                  : "BID NOW"}
 
-                {!auctionStarted ? (
+              </button>
 
-                  <button
-                    onClick={() =>
-                      setAuctionStarted(true)
-                    }
+              <div className="mt-5">
 
-                    className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-4 rounded-2xl"
-                  >
-                    START
-                  </button>
+                <h3 className="font-bold mb-3">
+                  Purchased Players
+                </h3>
 
-                ) : (
+                <div className="space-y-2 max-h-40 overflow-y-auto">
 
-                  <button
-                    onClick={() =>
-                      setAuctionPaused(
-                        !auctionPaused
-                      )
-                    }
+                  {(team.players || []).map(
+                    (
+                      player,
+                      idx
+                    ) => (
 
-                    className={`font-bold py-4 rounded-2xl ${
-                      auctionPaused
-                        ? "bg-yellow-500 text-black"
-                        : "bg-orange-500 text-black"
-                    }`}
-                  >
+                      <div
+                        key={idx}
+                        className="bg-[#111c35] p-3 rounded-2xl flex justify-between"
+                      >
 
-                    {auctionPaused
-                      ? "RESUME"
-                      : "PAUSE"}
+                        <span>
+                          {
+                            player.name
+                          }
+                        </span>
 
-                  </button>
+                        <span className="text-green-400">
+                          ₹
+                          {
+                            player.price
+                          }
+                        </span>
 
-                )}
-
-                <button
-                  onClick={() => {
-
-                    setTimer(100);
-
-                    setCurrentBid(3000);
-
-                    setHighestBidder("");
-
-                  }}
-
-                  className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 rounded-2xl"
-                >
-                  RESET
-                </button>
-
-              </div>
-
-              {/* SOLD PLAYERS */}
-
-              <div className="mt-8">
-
-                <h2 className="text-2xl font-bold mb-4">
-                  Sold Players
-                </h2>
-
-                <div className="space-y-3 max-h-72 overflow-y-auto">
-
-                  {(soldPlayers || []).length === 0 ? (
-
-                    <p className="text-gray-500">
-                      No sold players
-                    </p>
-
-                  ) : (
-
-                    (soldPlayers || []).map(
-                      (item, idx) => (
-
-                        <div
-                          key={idx}
-                          className="bg-[#111c35] rounded-2xl p-4"
-                        >
-
-                          <div className="flex justify-between mb-2">
-
-                            <span className="font-bold">
-                              {
-                                item.player
-                              }
-                            </span>
-
-                            <span className="text-green-400 font-bold">
-                              ₹
-                              {
-                                item.amount
-                              }
-                            </span>
-
-                          </div>
-
-                          <p className="text-gray-400 text-sm">
-                            Purchased by{" "}
-                            {item.team}
-                          </p>
-
-                        </div>
-                      )
+                      </div>
                     )
                   )}
 
@@ -997,8 +974,7 @@ export default function App() {
             </div>
 
           </div>
-
-        </div>
+        ))}
 
       </div>
 
