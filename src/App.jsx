@@ -55,24 +55,30 @@ const initialTeams = [
 ];
 
 const players = [
-  "Dilli Rao",
-  "Danish",
-  "Faiz",
-  "Muzammil",
-  "Kaif",
-  "Saquib",
-  "Asif Saikh",
-  "Mubarak",
-  "Salim Bhai",
-  "Reyaz",
-  "Uzair",
-  "Dinesh",
-  "Ahad",
-  "Mujahid",
+  "Muzammil Shaikh",
+  "Shashikant Naik",
   "Salim Khan",
+  "Azim",
+  "Dr. Saquib Ahmad Khan",
+  "Uzair",
+  "Afsar",
+  "Abdul Ahad",
+  "Danish",
+  "Ayaz C",
+  "Mubarak Bhai",
+  "Wasif",
+  "Daanial Mirza",
+  "Shaikh Reyaz",
+  "Dr. Asif",
   "Zaid",
-  "Ayaz",
-  "Afsar Ali",
+  "Asif",
+  "Salim",
+  "Shaikh Jameel",
+  "Dillirao Bommidi",
+  "Sabir (Salim's Friend)",
+  "Guffran (Asif's Friend)",
+  "Dinesh Bhai",
+  "Khumaini Sayyed"
 ];
 
 const users = [
@@ -90,21 +96,21 @@ const users = [
   },
 
   {
-    username: "daanial",
+    username: "Uzair",
     password: "1234",
     role: "owner",
     team: "Gladiator XI",
   },
 
   {
-    username: "asif",
+    username: "Muzammil",
     password: "1234",
     role: "owner",
     team: "Thunder Strikers",
   },
 
   {
-    username: "jameel",
+    username: "Dilli",
     password: "1234",
     role: "owner",
     team: "Turf Titans",
