@@ -21,8 +21,8 @@ const db = getDatabase(app);
 
 const initialTeams = [
   {
-    name: "Thunder Strikers",
-    owner: "Dr. Asif",
+    name: "Deadly Destroyers",
+    owner: "Uzair",
     icon: "Azim",
     budget: 80000,
     spent: 20000,
@@ -32,9 +32,9 @@ const initialTeams = [
   },
 
   {
-    name: "Turf Titans",
-    owner: "Dr. Jameel",
-    icon: "Asif New",
+    name: "Turf Assasins",
+    owner: "Muzammil",
+    icon: "Ahad",
     budget: 80000,
     spent: 20000,
     slots: 6,
@@ -43,9 +43,9 @@ const initialTeams = [
   },
 
   {
-    name: "Gladiator XI",
-    owner: "Daanial",
-    icon: "Wasif",
+    name: "Spartans",
+    owner: "Dilli",
+    icon: "Salim Tagde",
     budget: 80000,
     spent: 20000,
     slots: 6,
