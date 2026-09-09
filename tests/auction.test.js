@@ -4,12 +4,15 @@ import {
   calculateRemainingBudget,
   calculateRemainingSlots,
   calculateMaxAllowedBid,
+  calculateDynamicIncrement,
   validateBid,
+  resolveConcurrentBids,
   applySoldPlayer,
   getNextBid,
+  generateTeamRosterSummary,
 } from "../src/utils/auctionHelpers.js";
 
-describe("Cricket Auction Engine Calculations", () => {
+describe("Cricket Auction Engine Calculations & Concurrency", () => {
   const sampleTeam = {
     name: "Deadly Destroyers",
     budget: 80000,
@@ -61,8 +64,74 @@ describe("Cricket Auction Engine Calculations", () => {
     assert.equal(updated.players[2], "Daanial Mirza");
   });
 
-  test("increments bid according to standard auction rules", () => {
-    assert.equal(getNextBid(3000, 1000), 4000);
+  test("calculates dynamic tiered bid increments according to tournament ladder", () => {
+    assert.equal(calculateDynamicIncrement(5000), 1000);
+    assert.equal(calculateDynamicIncrement(25000), 2500);
+    assert.equal(calculateDynamicIncrement(75000), 5000);
+    assert.equal(calculateDynamicIncrement(150000), 10000);
+  });
+
+  test("computes next bid with standard or dynamic increment", () => {
+    assert.equal(getNextBid(8000), 9000);
+    assert.equal(getNextBid(20000), 22500);
     assert.equal(getNextBid(10000, 2000), 12000);
+  });
+
+  describe("Concurrent Bid Race Condition Resolver", () => {
+    test("selects higher bid amount when timestamps differ or match", () => {
+      const teamA = { name: "Team A", budget: 100000, spent: 20000, slots: 5, players: ["P1"] };
+      const teamB = { name: "Team B", budget: 100000, spent: 30000, slots: 5, players: ["P1"] };
+
+      const bids = [
+        { team: teamA, amount: 25000, timestamp: 1002, bidId: "b1" },
+        { team: teamB, amount: 30000, timestamp: 1001, bidId: "b2" },
+      ];
+
+      const resolution = resolveConcurrentBids(bids, 1000);
+      assert.equal(resolution.winningBid.bidId, "b2");
+      assert.equal(resolution.rejectedBids.length, 1);
+      assert.equal(resolution.rejectedBids[0].bid.bidId, "b1");
+    });
+
+    test("breaks tie by earliest timestamp when bid amounts are identical", () => {
+      const teamA = { name: "Team A", budget: 100000, spent: 20000, slots: 5, players: [] };
+      const teamB = { name: "Team B", budget: 100000, spent: 20000, slots: 5, players: [] };
+
+      const bids = [
+        { team: teamB, amount: 20000, timestamp: 1050, bidId: "b-late" },
+        { team: teamA, amount: 20000, timestamp: 1010, bidId: "b-early" },
+      ];
+
+      const resolution = resolveConcurrentBids(bids, 1000);
+      assert.equal(resolution.winningBid.bidId, "b-early");
+    });
+
+    test("filters out invalid bids exceeding team capacity before resolving winners", () => {
+      const poorTeam = { name: "Poor Team", budget: 10000, spent: 9000, slots: 5, players: [] };
+      const solidTeam = { name: "Solid Team", budget: 100000, spent: 10000, slots: 5, players: [] };
+
+      const bids = [
+        { team: poorTeam, amount: 5000, timestamp: 1000, bidId: "invalid-overbudget" },
+        { team: solidTeam, amount: 4000, timestamp: 1010, bidId: "valid-winner" },
+      ];
+
+      const resolution = resolveConcurrentBids(bids, 500);
+      assert.equal(resolution.winningBid.bidId, "valid-winner");
+      assert.match(resolution.rejectedBids[0].reason, /exceeds maximum allowed bid/);
+    });
+  });
+
+  describe("Team Roster Analytics Summary", () => {
+    test("generates complete team summary with utilization and remaining slots", () => {
+      const summary = generateTeamRosterSummary(sampleTeam, 2000);
+      assert.equal(summary.teamName, "Deadly Destroyers");
+      assert.equal(summary.remainingBudget, 50000);
+      assert.equal(summary.filledSlots, 2);
+      assert.equal(summary.remainingSlots, 4);
+      assert.equal(summary.maxAllowedBid, 44000);
+      assert.equal(summary.avgCostPerPlayer, 15000);
+      assert.equal(summary.budgetUtilizationPct, 37.5);
+      assert.equal(summary.isComplete, false);
+    });
   });
 });
